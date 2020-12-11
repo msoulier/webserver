@@ -26,15 +26,17 @@ var (
     documentRoot string
     sleepTime time.Duration = time.Second * 10
     logger *log.Logger
+    holdtime int
 )
 
 func init() {
     flag.BoolVar(&help, "h", false, "Print help")
     flag.StringVar(&listen, "l", "0.0.0.0:80", "Listen address for http (blank for none)")
-    /*flag.StringVar(&listentls, "t", "0.0.0.0:443", "Listen address for https (blank for none)")
+    flag.StringVar(&listentls, "t", "0.0.0.0:443", "Listen address for https (blank for none)")
     flag.StringVar(&cert, "c", "cert.pem", "Path to cert.pem file")
-    flag.StringVar(&key, "k", "key.pem", "Path to key.pem file") */
+    flag.StringVar(&key, "k", "key.pem", "Path to key.pem file")
     flag.StringVar(&documentRoot, "r", "/var/www/html", "Document root to serve from")
+    flag.IntVar(&holdtime, "H", 0, "Hold time on requests - ie. wait before responding")
     flag.Parse()
 
     if help {
@@ -70,6 +72,11 @@ func (sw statusResponseWriter) WriteHeader(code int) {
 func logHttp(handler func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
     return func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
+        // Sleep for holdtime before responding, if it's non-zero
+        if holdtime != 0 {
+            log.Printf("holding for %d seconds\n", holdtime)
+            time.Sleep(time.Second*time.Duration(holdtime))
+        }
 		sw := NewStatusResponseWriter(w)
         log.Println(r.Method, " ", r.URL, " ", r.Proto)
         handler(sw, r)
