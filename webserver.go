@@ -17,20 +17,20 @@ const (
 )
 
 var (
-	sockpath = ""
-	help = false
-	mu sync.Mutex
-	count int
-	listen string
-	listentls string
-	cert string
-	key string
-	colour bool
+	sockpath     = ""
+	help         = false
+	mu           sync.Mutex
+	count        int
+	listen       string
+	listentls    string
+	cert         string
+	key          string
+	colour       bool
 	documentRoot string
-	sleepTime time.Duration = time.Second * 10
-	holdtime int
-	log *logging.Logger
-	debug = false
+	sleepTime    time.Duration = time.Second * 10
+	holdtime     int
+	log          *logging.Logger
+	debug        = false
 )
 
 func init() {
@@ -50,7 +50,7 @@ func init() {
 
 	format := logging.MustStringFormatter(
 		`%{time:2006-01-02 15:04:05.000-0700} %{level} [%{shortfile}] %{message}`,
-		)
+	)
 	stderrBackend := logging.NewLogBackend(os.Stderr, "", 0)
 	stderrFormatter := logging.NewBackendFormatter(stderrBackend, format)
 	stderrBackendLevelled := logging.AddModuleLevel(stderrFormatter)
@@ -93,7 +93,7 @@ func logHttp(handler func(http.ResponseWriter, *http.Request)) func(http.Respons
 		// Sleep for holdtime before responding, if it's non-zero
 		if holdtime != 0 {
 			log.Infof("holding for %d seconds\n", holdtime)
-			time.Sleep(time.Second*time.Duration(holdtime))
+			time.Sleep(time.Second * time.Duration(holdtime))
 		}
 		handler(sw, r)
 		log.Info("back from handler")
@@ -120,8 +120,8 @@ func main() {
 	serving_https := false
 
 	if listen != "" {
-		server := &http.Server {
-			Addr:   listen,
+		server := &http.Server{
+			Addr:    listen,
 			Handler: mux,
 			//ErrorLog: log,
 		}
@@ -137,8 +137,8 @@ func main() {
 	}
 
 	if listentls != "" {
-		tls_server := &http.Server {
-			Addr: listentls,
+		tls_server := &http.Server{
+			Addr:    listentls,
 			Handler: mux,
 			//ErrorLog: log,
 		}
@@ -155,8 +155,8 @@ func main() {
 
 	// Wait for goroutines to return
 	for {
-		port := <- ch
-		if (port == "http") {
+		port := <-ch
+		if port == "http" {
 			serving_http = false
 		} else {
 			serving_https = false
